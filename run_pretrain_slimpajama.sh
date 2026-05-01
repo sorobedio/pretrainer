@@ -10,7 +10,14 @@ export WANDB_PROJECT="${WANDB_PROJECT:-slimpajama-pretrain}"
 export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-slimpajama-$(date +%Y%m%d-%H%M)}"
 # ------------------------------------------------------------------
 
-NPROC_PER_NODE="${NPROC_PER_NODE:-8}"
+# Set CUDA_VISIBLE_DEVICES to target specific GPUs, e.g.:
+#   CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_pretrain_slimpajama.sh
+if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
+  export CUDA_VISIBLE_DEVICES
+  NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
+else
+  NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
+fi
 
 torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
