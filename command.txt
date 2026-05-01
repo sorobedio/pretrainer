@@ -1,0 +1,8 @@
+  # 4 specific GPUs
+  CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_pretrain_slimpajama.sh
+
+  # 2 GPUs
+  CUDA_VISIBLE_DEVICES=1 bash run_pretrain_slimpajama.sh
+
+  # single GPU
+  CUDA_VISIBLE_DEVICES=0 bash run_pretrain_slimpajama.sh

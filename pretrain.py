@@ -160,7 +160,7 @@ def train() -> None:
 
     trainer = PretrainTrainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         args=training_args,
         train_dataset=train_data if training_args.do_train else None,
         eval_dataset=test_data,
