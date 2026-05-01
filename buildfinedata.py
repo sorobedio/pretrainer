@@ -1,7 +1,7 @@
 """
 Download and combine:
-  - HuggingFaceTB/smollm-corpus  fineweb-edu-dedup  (sample-10BT split)
-  - HuggingFaceTB/finemath        finemath-4plus      (half of train split)
+  - HuggingFaceTB/smollm-corpus  config="sample-10BT"  (~10B gpt2 tokens)
+  - HuggingFaceTB/finemath       config="finemath-4plus" (half of train)
 into a single JSON-lines file: finedata.json
 """
 
@@ -10,15 +10,15 @@ from datasets import load_dataset
 
 OUTPUT = "finedata.json"
 
-# ── 1. FineWeb-edu-dedup  (10BT sample) ─────────────────────────────────
-print("⏳ Loading FineWeb-edu-dedup (sample-10BT) ...")
+# ── 1. SmolLM-corpus  sample-10BT  (config, not split) ──────────────────
+print("⏳ Loading smollm-corpus (sample-10BT config) ...")
 fineweb = load_dataset(
     "HuggingFaceTB/smollm-corpus",
-    "fineweb-edu-dedup",
+    "sample-10BT",
     split="train",
     num_proc=16,
 )
-print(f"   ✓ FineWeb loaded: {len(fineweb):,} rows")
+print(f"   ✓ FineWeb 10BT loaded: {len(fineweb):,} rows")
 
 # ── 2. FineMath 4+ (full train, then take half) ─────────────────────────
 print("⏳ Loading FineMath (finemath-4plus) ...")
@@ -40,7 +40,7 @@ with open(OUTPUT, "w", encoding="utf-8") as f:
     for row in fineweb:
         record = {
             "text": row["text"],
-            "source": "fineweb-edu-dedup",
+            "source": "smollm-corpus-sample-10BT",
         }
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
         count += 1
