@@ -2,12 +2,6 @@
 # Train MobileLLM-R1-360M from scratch (random init from config) on DKYoon/SlimPajama-6B.
 # Checkpoints every 1 B tokens in HuggingFace format; test perplexity, FLOPs, and
 # token count logged to wandb on every checkpoint.
-#
-# Single-node multi-GPU example (8 GPUs):
-#   bash run_pretrain_slimpajama.sh
-#
-# Multi-node example (2 nodes, 8 GPUs each):
-#   NODE_RANK=<rank> MASTER_ADDR=<addr> NNODES=2 bash run_pretrain_slimpajama.sh
 
 set -euo pipefail
 
@@ -16,16 +10,10 @@ export WANDB_PROJECT="${WANDB_PROJECT:-slimpajama-pretrain}"
 export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-slimpajama-$(date +%Y%m%d-%H%M)}"
 # ------------------------------------------------------------------
 
-NNODES="${NNODES:-1}"
 NPROC_PER_NODE="${NPROC_PER_NODE:-8}"
-MASTER_ADDR="${MASTER_ADDR:-localhost}"
-MASTER_PORT="${MASTER_PORT:-29500}"
 
 torchrun \
-  --nnodes="$NNODES" \
   --nproc_per_node="$NPROC_PER_NODE" \
-  --master_addr="$MASTER_ADDR" \
-  --master_port="$MASTER_PORT" \
   pretrain.py \
   \
   --input_model_filename "facebook/MobileLLM-R1-360M-base" \
