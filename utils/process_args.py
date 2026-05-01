@@ -57,6 +57,14 @@ class DataArguments:
         default=1_000_000_000,
         metadata={"help": "Save a checkpoint every this many tokens (default 1B)"},
     )
+    total_tokens: int = field(
+        default=0,
+        metadata={"help": "Total dataset tokens; used to derive max_steps and cosine schedule when max_steps is not set"},
+    )
+    eval_max_samples: int = field(
+        default=500,
+        metadata={"help": "Number of packed sequences to evaluate perplexity on (0 = full test split)"},
+    )
 
 
 @dataclass

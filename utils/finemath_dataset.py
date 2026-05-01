@@ -24,6 +24,7 @@ class FinemathDataset(IterableDataset):
         streaming: bool = True,
         buffer_size: int = 10_000,
         seed: int = 42,
+        max_samples: int = 0,
     ):
         self.tokenizer = tokenizer
         self.seq_len = seq_len
@@ -36,25 +37,21 @@ class FinemathDataset(IterableDataset):
         self.streaming = streaming
         self.buffer_size = buffer_size
         self.seed = seed
+        self.max_samples = max_samples
 
     def _get_dataset(self):
+        load_kwargs = dict(split=self.split)
+        args = [self.dataset_name]
+        if self.subset:
+            args.append(self.subset)
+
         if self.streaming:
-            ds = load_dataset(
-                self.dataset_name,
-                self.subset,
-                split=self.split,
-                streaming=True,
-            )
+            ds = load_dataset(*args, streaming=True, **load_kwargs)
             if self.world_size > 1:
                 ds = ds.shard(num_shards=self.world_size, index=self.world_rank)
             return ds.shuffle(seed=self.seed, buffer_size=self.buffer_size)
         else:
-            ds = load_dataset(
-                self.dataset_name,
-                self.subset,
-                split=self.split,
-                num_proc=self.num_proc,
-            )
+            ds = load_dataset(*args, num_proc=self.num_proc, **load_kwargs)
             if self.world_size > 1:
                 ds = ds.shard(num_shards=self.world_size, index=self.world_rank)
             return ds.shuffle(seed=self.seed)
@@ -63,6 +60,7 @@ class FinemathDataset(IterableDataset):
         ds = self._get_dataset()
         eos_id = self.tokenizer.eos_token_id
         buffer = []
+        n_yielded = 0
 
         for example in ds:
             text = example.get("text", "")
@@ -77,5 +75,7 @@ class FinemathDataset(IterableDataset):
                 chunk = buffer[: self.seq_len]
                 buffer = buffer[self.seq_len :]
                 t = torch.tensor(chunk, dtype=torch.long)
-                # labels == input_ids; CausalLM models shift internally for the loss
                 yield {"input_ids": t, "labels": t.clone()}
+                n_yielded += 1
+                if self.max_samples > 0 and n_yielded >= self.max_samples:
+                    return

@@ -7,7 +7,7 @@
 
 import math
 from functools import partial
-from typing import Optional
+from typing import Dict, Optional
 
 import torch
 from torch.optim import Optimizer
@@ -90,6 +90,20 @@ class FlopsCallback(TrainerCallback):
         logs["total_flops_e21"] = total_flops / 1e21  # ZettaFLOPs, convenient scale
 
 
+class PerplexityCallback(TrainerCallback):
+    """Triggers test-set evaluation on every checkpoint and logs perplexity."""
+
+    def on_save(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        **kwargs,
+    ) -> TrainerControl:
+        control.should_evaluate = True
+        return control
+
+
 class PretrainMixin:
     def __init__(
         self,
@@ -119,6 +133,20 @@ class PretrainMixin:
 
 
 class PretrainTrainer(PretrainMixin, Trainer):
+    def evaluate(
+        self,
+        eval_dataset=None,
+        ignore_keys=None,
+        metric_key_prefix: str = "eval",
+    ) -> Dict[str, float]:
+        metrics = super().evaluate(eval_dataset, ignore_keys, metric_key_prefix)
+        loss_key = f"{metric_key_prefix}_loss"
+        if loss_key in metrics:
+            ppl = math.exp(min(metrics[loss_key], 20.0))
+            metrics[f"{metric_key_prefix}_perplexity"] = ppl
+            self.log({f"{metric_key_prefix}_perplexity": ppl})
+        return metrics
+
     def get_train_dataloader(self) -> DataLoader:
         if self.train_dataset is None:
             raise ValueError("Trainer: training requires a train_dataset.")

@@ -17,7 +17,7 @@ from torch import distributed as dist
 from transformers import AutoConfig, default_data_collator
 
 from utils.finemath_dataset import FinemathDataset
-from utils.pretrain_trainer import FlopsCallback, PretrainTrainer
+from utils.pretrain_trainer import FlopsCallback, PerplexityCallback, PretrainTrainer
 from utils.process_args import process_args
 
 
@@ -92,7 +92,7 @@ def train() -> None:
     log.info("Tokenizer ready.")
 
     # ------------------------------------------------------------------ #
-    # Derive save_steps so that we checkpoint every tokens_per_checkpoint #
+    # Derive save_steps and max_steps from token counts                   #
     # ------------------------------------------------------------------ #
     tokens_per_step = (
         training_args.per_device_train_batch_size
@@ -109,8 +109,15 @@ def train() -> None:
     training_args.save_steps = save_steps
     training_args.save_strategy = "steps"
 
+    if training_args.max_steps <= 0 and data_args.total_tokens > 0:
+        training_args.max_steps = max(1, data_args.total_tokens // tokens_per_step)
+        log.info(
+            f"Derived max_steps={training_args.max_steps:,} from "
+            f"total_tokens={data_args.total_tokens / 1e9:.2f}B"
+        )
+
     # ------------------------------------------------------------------ #
-    # Dataset                                                              #
+    # Datasets                                                             #
     # ------------------------------------------------------------------ #
     train_data = FinemathDataset(
         tokenizer=tokenizer,
@@ -126,6 +133,21 @@ def train() -> None:
         seed=training_args.seed,
     )
 
+    test_data = FinemathDataset(
+        tokenizer=tokenizer,
+        seq_len=training_args.model_max_length,
+        world_rank=0,
+        world_size=1,
+        dataset_name=data_args.dataset_name,
+        subset=data_args.dataset_subset,
+        split="test",
+        num_proc=data_args.num_proc,
+        streaming=data_args.streaming,
+        buffer_size=data_args.buffer_size,
+        seed=training_args.seed,
+        max_samples=data_args.eval_max_samples,
+    )
+
     # ------------------------------------------------------------------ #
     # Trainer                                                              #
     # ------------------------------------------------------------------ #
@@ -134,15 +156,16 @@ def train() -> None:
         seq_len=training_args.model_max_length,
         world_size=world_size,
     )
+    ppl_cb = PerplexityCallback()
 
     trainer = PretrainTrainer(
         model=model,
         tokenizer=tokenizer,
         args=training_args,
         train_dataset=train_data if training_args.do_train else None,
-        eval_dataset=None,
+        eval_dataset=test_data,
         data_collator=default_data_collator,
-        callbacks=[flops_cb],
+        callbacks=[flops_cb, ppl_cb],
     )
 
     torch.distributed.barrier(device_ids=[local_rank])
