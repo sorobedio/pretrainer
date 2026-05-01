@@ -8,7 +8,7 @@ into a single JSON-lines file: finedata.json
 import json
 from datasets import load_dataset
 
-OUTPUT = "finedata.json"
+OUTPUT = "/c2/soro/datasets/hb/finedata.json"
 
 # ── 1. FineWeb-edu  sample-10BT  (9.67M rows) ───────────────────────────
 print("⏳ Loading FineWeb-edu (sample-10BT) ...")
