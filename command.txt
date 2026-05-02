@@ -6,3 +6,28 @@
 
   # single GPU
   CUDA_VISIBLE_DEVICES=0 bash run_pretrain_slimpajama.sh
+
+
+
+
+  # Expand everything via INR (original behaviour)
+  python expand_inr_to_360m.py --mode inr \
+      --source_model facebook/MobileLLM-R1-140M-base \
+      --target_model facebook/MobileLLM-R1-360M-base \
+      --push_to_hub
+
+  # INR for FFN, random-init for all attention projections
+  python expand_inr_to_360m.py --mode inr \
+      --rand_init lm_head,  \
+      --push_to_hub ...
+  # → repo: bedio/...-inr-rand_q_proj+k_proj+v_proj+o_proj
+
+  # INR for attention, random-init for all FFN layers
+  python expand_inr_to_360m.py --mode inr \
+      --rand_init feed_forward \
+      --push_to_hub ...
+
+  # Random-init everything except embeddings (ablation baseline)
+  python expand_inr_to_360m.py --mode inr \
+      --rand_init self_attn feed_forward norm \
+      --push_to_hub ...

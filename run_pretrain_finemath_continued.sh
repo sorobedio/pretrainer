@@ -23,7 +23,7 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/MobileLLM-R1-360M-base-expanded-from-MobileLLM-R1-140M-base-inr" \
+  --input_model_filename "bedio/360M-from-140M-inr-rand-embed_tokens-lm_head" \
   --init_from_pretrained True \
   --output_dir "./checkpoints/mobilellm-finemath-continued" \
   \
