@@ -25,7 +25,7 @@ torchrun \
   \
   --input_model_filename "bedio/360M-from-140M-inr_rescale-rand-embed_tokens-lm_head" \
   --init_from_pretrained True \
-  --output_dir "./checkpoints/mobilellm-finemath-continued" \
+  --output_dir "/c2/soro/pretraining/checkpoints/mobilellm-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \

@@ -28,7 +28,7 @@ torchrun \
   pretrain.py \
   \
   --input_model_filename "facebook/MobileLLM-R1-360M-base" \
-  --output_dir "./checkpoints/mobilellm-finemath" \
+  --output_dir "/c2//checkpoints/mobilellm-finemath" \
   \
   --do_train True \
   --do_eval False \
