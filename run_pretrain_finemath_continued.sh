@@ -16,14 +16,14 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
 else
-  NPROC_PER_NODE="${NPROC_PER_NODE:-8}"
+  NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
 torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/360M-from-140M-inr-rand-embed_tokens-lm_head" \
+  --input_model_filename "bedio/360M-from-140M-inr_rescale-rand-embed_tokens-lm_head" \
   --init_from_pretrained True \
   --output_dir "./checkpoints/mobilellm-finemath-continued" \
   \
