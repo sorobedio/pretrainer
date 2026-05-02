@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Train MobileLLM-R1-360M from scratch (random init from config) on DKYoon/SlimPajama-6B.
-# Checkpoints every 1 B tokens in HuggingFace format; test perplexity, FLOPs, and
-# token count logged to wandb on every checkpoint.
+# Continue pretraining from bedio/MobileLLM-R1-360M-base-expanded-from-MobileLLM-R1-140M-base-inr
+# on DKYoon/SlimPajama-6B. Checkpoints every 1M tokens in HuggingFace format; test perplexity,
+# FLOPs, and token count logged to wandb on every checkpoint.
 
 set -euo pipefail
 
 # ---------- wandb config (edit or export before running) ----------
-export WANDB_PROJECT="${WANDB_PROJECT:-slimpajama-pretrain}"
-export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-slimpajama-$(date +%Y%m%d-%H%M)}"
+export WANDB_PROJECT="${WANDB_PROJECT:-slimpajama-continued}"
+export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-slimpajama-continued-$(date +%Y%m%d-%H%M)}"
 # ------------------------------------------------------------------
 
 # Set CUDA_VISIBLE_DEVICES to target specific GPUs, e.g.:
@@ -23,8 +23,9 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "facebook/MobileLLM-R1-360M-base" \
-  --output_dir "./checkpoints/mobilellm-slimpajama" \
+  --input_model_filename "bedio/MobileLLM-R1-360M-base-expanded-from-MobileLLM-R1-140M-base-inr" \
+  --init_from_pretrained True \
+  --output_dir "./checkpoints/mobilellm-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \
@@ -37,21 +38,21 @@ torchrun \
   --per_device_eval_batch_size 4 \
   --gradient_accumulation_steps 4 \
   \
-  --learning_rate 3e-4 \
+  --learning_rate 1e-4 \
   --weight_decay 0.1 \
   --adam_beta1 0.9 \
   --adam_beta2 0.95 \
   --adam_epsilon 1e-8 \
   --lr_scheduler_type "cosine" \
-  --warmup_steps 2000 \
+  --warmup_steps 500 \
   \
   --logging_steps 10 \
   --logging_dir "./logs" \
   --report_to "wandb" \
   \
   --save_strategy "steps" \
-  --save_total_limit 3 \
-  --tokens_per_checkpoint 1000000000 \
+  --save_total_limit 0 \
+  --tokens_per_checkpoint 1000000 \
   \
   --eval_strategy "no" \
   --ddp_find_unused_parameters False \
@@ -60,6 +61,7 @@ torchrun \
   \
   --dataset_name "DKYoon/SlimPajama-6B" \
   --dataset_subset "" \
+  --eval_split "test" \
   --total_tokens 6000000000 \
   --eval_max_samples 500 \
   --streaming True \
