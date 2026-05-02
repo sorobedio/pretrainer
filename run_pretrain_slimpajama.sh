@@ -25,7 +25,7 @@ torchrun \
   \
   --input_model_filename "bedio/MobileLLM-R1-360M-base-expanded-from-MobileLLM-R1-140M-base-inr" \
   --init_from_pretrained True \
-  --output_dir "./checkpoints/mobilellm-slimpajama-continued" \
+  --output_dir "/c2/soro/checkpoints/mobilellm-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \
