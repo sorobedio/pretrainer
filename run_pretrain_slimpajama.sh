@@ -16,7 +16,7 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
 else
-  NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
+  NPROC_PER_NODE="${NPROC_PER_NODE:-2}"
 fi
 
 torchrun \
@@ -25,7 +25,7 @@ torchrun \
   \
   --input_model_filename "bedio/MobileLLM-R1-360M-base-expanded-from-MobileLLM-R1-140M-base-inr" \
   --init_from_pretrained True \
-  --output_dir "/c2/soro/checkpoints/mobilellm-slimpajama-continued" \
+  --output_dir "./checkpoints/mobilellm-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \

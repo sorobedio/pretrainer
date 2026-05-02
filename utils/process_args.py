@@ -73,6 +73,14 @@ class DataArguments:
         default="test",
         metadata={"help": "Dataset split to use for perplexity evaluation (e.g. 'test', 'validation')"},
     )
+    variable_checkpoint_schedule: bool = field(
+        default=False,
+        metadata={"help": "Use tiered checkpoint schedule (100M/500M/1B) instead of fixed tokens_per_checkpoint"},
+    )
+    eval_tokens_interval: int = field(
+        default=0,
+        metadata={"help": "Evaluate perplexity every N tokens (0 = evaluate on every save instead)"},
+    )
 
 
 @dataclass

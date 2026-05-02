@@ -90,8 +90,22 @@ class FlopsCallback(TrainerCallback):
         logs["total_flops_e21"] = total_flops / 1e21  # ZettaFLOPs, convenient scale
 
 
+def _tokens_per_step(args: TrainingArguments) -> int:
+    ws = torch.distributed.get_world_size() if torch.distributed.is_initialized() else 1
+    return (
+        args.per_device_train_batch_size
+        * args.gradient_accumulation_steps
+        * getattr(args, "model_max_length", 2048)
+        * ws
+    )
+
+
 class PerplexityCallback(TrainerCallback):
-    """Triggers test-set evaluation on every checkpoint and logs perplexity."""
+    """Triggers test-set evaluation at a fixed token interval (or on every save as fallback)."""
+
+    def __init__(self, eval_tokens_interval: int = 0):
+        self.eval_tokens_interval = eval_tokens_interval
+        self._last_eval_tokens = 0
 
     def on_save(
         self,
@@ -100,7 +114,70 @@ class PerplexityCallback(TrainerCallback):
         control: TrainerControl,
         **kwargs,
     ) -> TrainerControl:
-        control.should_evaluate = True
+        # Fallback: trigger on save when no token interval is configured
+        if self.eval_tokens_interval <= 0:
+            control.should_evaluate = True
+        return control
+
+    def on_step_end(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        **kwargs,
+    ) -> TrainerControl:
+        if self.eval_tokens_interval <= 0:
+            return control
+        total_tokens = state.global_step * _tokens_per_step(args)
+        boundary = (total_tokens // self.eval_tokens_interval) * self.eval_tokens_interval
+        if boundary > self._last_eval_tokens and boundary > 0:
+            self._last_eval_tokens = boundary
+            control.should_evaluate = True
+        return control
+
+
+class VariableCheckpointCallback(TrainerCallback):
+    """Saves checkpoints at token-based intervals that tighten early in training:
+      - every 100M tokens until 1B
+      - every 500M tokens from 1B to 5B
+      - every 1B tokens after 5B
+    """
+
+    # (exclusive upper bound, interval)
+    _SCHEDULE = [
+        (1_000_000_000,   100_000_000),
+        (5_000_000_000,   500_000_000),
+        (float("inf"),  1_000_000_000),
+    ]
+
+    def __init__(self):
+        self._last_save_tokens = 0
+
+    def on_train_begin(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        **kwargs,
+    ) -> TrainerControl:
+        control.should_save = True
+        return control
+
+    def on_step_end(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        **kwargs,
+    ) -> TrainerControl:
+        total_tokens = state.global_step * _tokens_per_step(args)
+        for upper, interval in self._SCHEDULE:
+            if total_tokens < upper:
+                break
+        boundary = (total_tokens // interval) * interval
+        if boundary > self._last_save_tokens and boundary > 0:
+            self._last_save_tokens = boundary
+            control.should_save = True
         return control
 
 

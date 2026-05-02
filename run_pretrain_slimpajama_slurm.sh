@@ -16,7 +16,7 @@ source ~/scratch/soro_env/bin/activate
 
 # ── Directories ──
 mkdir -p logs
-mkdir -p /c2/soro/checkpoints/mobilellm-slimpajama-continued
+mkdir -p /c2/soro/checkpoints/mobilellm-360m-slimpajama-scratch
 
 # ── NCCL ──
 export MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
@@ -32,8 +32,8 @@ export TRANSFORMERS_CACHE=$SCRATCH/.cache/huggingface
 mkdir -p $HF_HOME
 
 # ── Wandb ──
-export WANDB_PROJECT="slimpajama-continued"
-export WANDB_RUN_NAME="mobilellm-360m-slimpajama-continued_${SLURM_JOB_ID}"
+export WANDB_PROJECT="slimpajama-scratch"
+export WANDB_RUN_NAME="mobilellm-360m-slimpajama-scratch_${SLURM_JOB_ID}"
 
 # ── Launch ──
 torchrun \
@@ -43,9 +43,9 @@ torchrun \
     --rdzv_endpoint=${MASTER_ADDR}:${MASTER_PORT} \
     pretrain.py \
     \
-    --input_model_filename "bedio/MobileLLM-R1-360M-base-expanded-from-MobileLLM-R1-140M-base-inr" \
-    --init_from_pretrained True \
-    --output_dir "../mobilellm-slimpajama-continued" \
+    --input_model_filename "facebook/MobileLLM-R1-360M-base" \
+    --init_from_pretrained False \
+    --output_dir "/c2/soro/checkpoints/mobilellm-360m-slimpajama-scratch" \
     \
     --do_train True \
     --do_eval True \
@@ -67,12 +67,12 @@ torchrun \
     --warmup_steps 500 \
     \
     --logging_steps 10 \
-    --logging_dir "/c2/soro/checkpoints/mobilellm-slimpajama-continued/logs" \
+    --logging_dir "/c2/soro/checkpoints/mobilellm-360m-slimpajama-scratch/logs" \
     --report_to "wandb" \
     \
-    --save_strategy "steps" \
     --save_total_limit 0 \
-    --tokens_per_checkpoint 1000000 \
+    --variable_checkpoint_schedule True \
+    --eval_tokens_interval 1000000 \
     \
     --eval_strategy "no" \
     --ddp_find_unused_parameters False \

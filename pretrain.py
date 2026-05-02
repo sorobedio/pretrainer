@@ -17,7 +17,7 @@ from torch import distributed as dist
 from transformers import AutoConfig, default_data_collator
 
 from utils.finemath_dataset import FinemathDataset
-from utils.pretrain_trainer import FlopsCallback, PerplexityCallback, PretrainTrainer
+from utils.pretrain_trainer import FlopsCallback, PerplexityCallback, PretrainTrainer, VariableCheckpointCallback
 from utils.process_args import process_args
 
 
@@ -107,14 +107,21 @@ def train() -> None:
         * training_args.model_max_length
         * world_size
     )
-    save_steps = max(1, data_args.tokens_per_checkpoint // tokens_per_step)
-    log.info(
-        f"tokens/step={tokens_per_step:,}  |  "
-        f"checkpoint every {save_steps} steps  "
-        f"({data_args.tokens_per_checkpoint / 1e9:.2f}B tokens)"
-    )
-    training_args.save_steps = save_steps
-    training_args.save_strategy = "steps"
+    if data_args.variable_checkpoint_schedule:
+        log.info(
+            f"tokens/step={tokens_per_step:,}  |  "
+            "variable checkpoint schedule: every 100M until 1B, 500M until 5B, 1B after"
+        )
+        training_args.save_strategy = "no"
+    else:
+        save_steps = max(1, data_args.tokens_per_checkpoint // tokens_per_step)
+        log.info(
+            f"tokens/step={tokens_per_step:,}  |  "
+            f"checkpoint every {save_steps} steps  "
+            f"({data_args.tokens_per_checkpoint / 1e9:.2f}B tokens)"
+        )
+        training_args.save_steps = save_steps
+        training_args.save_strategy = "steps"
 
     if training_args.max_steps <= 0 and data_args.total_tokens > 0:
         training_args.max_steps = max(1, data_args.total_tokens // tokens_per_step)
@@ -163,7 +170,11 @@ def train() -> None:
         seq_len=training_args.model_max_length,
         world_size=world_size,
     )
-    ppl_cb = PerplexityCallback()
+    ppl_cb = PerplexityCallback(eval_tokens_interval=data_args.eval_tokens_interval)
+
+    callbacks = [flops_cb, ppl_cb]
+    if data_args.variable_checkpoint_schedule:
+        callbacks.append(VariableCheckpointCallback())
 
     trainer = PretrainTrainer(
         model=model,
@@ -172,7 +183,7 @@ def train() -> None:
         train_dataset=train_data if training_args.do_train else None,
         eval_dataset=test_data,
         data_collator=default_data_collator,
-        callbacks=[flops_cb, ppl_cb],
+        callbacks=callbacks,
     )
 
     torch.distributed.barrier(device_ids=[local_rank])
