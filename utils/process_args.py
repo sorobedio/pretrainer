@@ -23,6 +23,10 @@ class ModelArguments:
     output_model_filename: Optional[str] = field(
         default="test-output", metadata={"help": "Output model relative path"}
     )
+    init_from_pretrained: bool = field(
+        default=False,
+        metadata={"help": "Load pretrained weights via from_pretrained instead of random init from config"},
+    )
 
 
 @dataclass
@@ -64,6 +68,10 @@ class DataArguments:
     eval_max_samples: int = field(
         default=500,
         metadata={"help": "Number of packed sequences to evaluate perplexity on (0 = full test split)"},
+    )
+    eval_split: str = field(
+        default="test",
+        metadata={"help": "Dataset split to use for perplexity evaluation (e.g. 'test', 'validation')"},
     )
 
 

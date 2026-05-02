@@ -75,9 +75,16 @@ def train() -> None:
 
     log.info(f"Global rank {global_rank} / world size {world_size}")
 
-    # Build model from scratch (weights are randomly initialised)
-    config = AutoConfig.from_pretrained(model_args.input_model_filename)
-    model = transformers.AutoModelForCausalLM.from_config(config=config)
+    if model_args.init_from_pretrained:
+        log.info(f"Loading pretrained weights from {model_args.input_model_filename} …")
+        model = transformers.AutoModelForCausalLM.from_pretrained(
+            model_args.input_model_filename,
+            torch_dtype=torch.bfloat16 if training_args.bf16 else (torch.float16 if training_args.fp16 else torch.float32),
+        )
+    else:
+        log.info("Initialising model from scratch (random weights) …")
+        config = AutoConfig.from_pretrained(model_args.input_model_filename)
+        model = transformers.AutoModelForCausalLM.from_config(config=config)
 
     num_params = sum(p.numel() for p in model.parameters())
     log.info(f"Model parameters: {num_params / 1e6:.1f}M  ({num_params:,})")
@@ -140,7 +147,7 @@ def train() -> None:
         world_size=1,
         dataset_name=data_args.dataset_name,
         subset=data_args.dataset_subset,
-        split="test",
+        split=data_args.eval_split,
         num_proc=data_args.num_proc,
         streaming=data_args.streaming,
         buffer_size=data_args.buffer_size,
