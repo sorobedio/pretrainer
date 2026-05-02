@@ -32,7 +32,7 @@ export TRANSFORMERS_CACHE=$SCRATCH/.cache/huggingface
 mkdir -p $HF_HOME
 
 # ── Wandb ──
-export WANDB_PROJECT="slimpajama-scratch"
+export WANDB_PROJECT="slimpajama"
 export WANDB_RUN_NAME="mobilellm-360m-slimpajama-scratch_${SLURM_JOB_ID}"
 
 # ── Launch ──
@@ -45,7 +45,7 @@ torchrun \
     \
     --input_model_filename "facebook/MobileLLM-R1-360M-base" \
     --init_from_pretrained False \
-    --output_dir "/c2/soro/checkpoints/mobilellm-360m-slimpajama-scratch" \
+    --output_dir "./checkpoints/mobilellm-360m-slimpajama-scratch" \
     \
     --do_train True \
     --do_eval True \
