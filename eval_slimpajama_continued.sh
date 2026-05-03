@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Evaluate checkpoints from run_pretrain_slimpajama_continued.sh
 # Model: bedio/360M-from-140M-inr_rescale, trained on DKYoon/SlimPajama-6B
-# Training used 8 GPUs, bs=4, grad_acc=4, seq_len=2048 → tokens/step=262144
-# Checkpoints: every 100M tokens (step interval=381), total ~1B tokens
+# Training used 2 GPUs, bs=4, grad_acc=4, seq_len=2048 → tokens/step=65536
+# Checkpoints: every 100M tokens (step interval=1525), total ~1B tokens
 
 set -euo pipefail
 
@@ -16,7 +16,7 @@ python eval_checkpoints_list.py \
     --output_path     "$OUTPUT_PATH" \
     --wandb_project   "slimpajama-continued" \
     --wandb_run       "360m-inr-scaled-slimpajama-eval" \
-    --tokens_per_step 262144 \
+    --tokens_per_step 65536 \
     --mode            "$MODE" \
     --batch_size      8 \
     --seq_len         2048 \
