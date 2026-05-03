@@ -14,7 +14,7 @@ source ~/scratch/soro_env/bin/activate
 
 # ── Directories ──
 mkdir -p logs
-mkdir -p /c2/soro/finesubset
+mkdir -p ~/scratch/finesubset
 
 # ── HuggingFace cache on scratch ──
 export HF_HOME=$SCRATCH/.cache/huggingface

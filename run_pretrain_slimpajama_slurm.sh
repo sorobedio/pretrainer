@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=slimpajama_pretrain
+#SBATCH --job-name=llama3b-fineweb-scratch
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:h100:2
@@ -16,7 +16,7 @@ source ~/scratch/soro_env/bin/activate
 
 # ── Directories ──
 mkdir -p logs
-mkdir -p /c2/soro/checkpoints/mobilellm-360m-slimpajama-scratch
+mkdir -p $SCRATCH/checkpoints/llama-3b-fineweb-scratch
 
 # ── NCCL ──
 export MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
@@ -32,8 +32,8 @@ export TRANSFORMERS_CACHE=$SCRATCH/.cache/huggingface
 mkdir -p $HF_HOME
 
 # ── Wandb ──
-export WANDB_PROJECT="slimpajama"
-export WANDB_RUN_NAME="mobilellm-360m-slimpajama-scratch_${SLURM_JOB_ID}"
+export WANDB_PROJECT="fineweb-scratch"
+export WANDB_RUN_NAME="llama-3b-fineweb10B-scratch_${SLURM_JOB_ID}"
 
 # ── Launch ──
 torchrun \
@@ -43,9 +43,9 @@ torchrun \
     --rdzv_endpoint=${MASTER_ADDR}:${MASTER_PORT} \
     pretrain.py \
     \
-    --input_model_filename "bedio/360M-from-140M-inr-rand-embed_tokens-lm_head" \
+    --input_model_filename "meta-llama/Llama-3.2-3B" \
     --init_from_pretrained False \
-    --output_dir "./checkpoints/mobilellm-360m-slimpajama-raw" \
+    --output_dir "$SCRATCH/checkpoints/llama-3b-fineweb-scratch" \
     \
     --do_train True \
     --do_eval True \
@@ -58,20 +58,20 @@ torchrun \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 4 \
     \
-    --learning_rate 1e-4 \
+    --learning_rate 3e-4 \
     --weight_decay 0.1 \
     --adam_beta1 0.9 \
     --adam_beta2 0.95 \
     --adam_epsilon 1e-8 \
     --lr_scheduler_type "cosine" \
-    --warmup_steps 500 \
+    --warmup_steps 2000 \
     \
     --logging_steps 10 \
-    --logging_dir "./checkpoints/mobilellm-360m-slimpajama-raw/logs" \
+    --logging_dir "$SCRATCH/checkpoints/llama-3b-fineweb-scratch/logs" \
     --report_to "wandb" \
     \
     --save_total_limit 0 \
-    --variable_checkpoint_schedule True \
+    --tokens_per_checkpoint 100000000 \
     --eval_tokens_interval 1000000 \
     \
     --eval_strategy "no" \
@@ -79,10 +79,12 @@ torchrun \
     --log_on_each_node False \
     --dataloader_num_workers 4 \
     \
-    --dataset_name "DKYoon/SlimPajama-6B" \
-    --dataset_subset "" \
+    --dataset_name "HuggingFaceFW/fineweb-edu" \
+    --dataset_subset "sample-10BT" \
+    --eval_dataset_name "DKYoon/SlimPajama-6B" \
+    --eval_dataset_subset "" \
     --eval_split "test" \
-    --total_tokens 6000000000 \
+    --total_tokens 10000000000 \
     --eval_max_samples 500 \
     --streaming True \
     --buffer_size 10000 \

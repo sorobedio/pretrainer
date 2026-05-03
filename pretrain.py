@@ -147,13 +147,16 @@ def train() -> None:
         seed=training_args.seed,
     )
 
+    eval_dataset_name = data_args.eval_dataset_name or data_args.dataset_name
+    eval_dataset_subset = data_args.eval_dataset_subset if data_args.eval_dataset_name else data_args.dataset_subset
+
     test_data = FinemathDataset(
         tokenizer=tokenizer,
         seq_len=training_args.model_max_length,
         world_rank=0,
         world_size=1,
-        dataset_name=data_args.dataset_name,
-        subset=data_args.dataset_subset,
+        dataset_name=eval_dataset_name,
+        subset=eval_dataset_subset,
         split=data_args.eval_split,
         num_proc=data_args.num_proc,
         streaming=data_args.streaming,

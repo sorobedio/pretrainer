@@ -23,9 +23,9 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "facebook/MobileLLM-R1-360M-base" \
+  --input_model_filename "bedio/360M-from-140M-inr" \
   --init_from_pretrained False \
-  --output_dir "/c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch" \
+  --output_dir "/c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-inr" \
   \
   --do_train True \
   --do_eval True \

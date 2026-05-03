@@ -73,6 +73,14 @@ class DataArguments:
         default="test",
         metadata={"help": "Dataset split to use for perplexity evaluation (e.g. 'test', 'validation')"},
     )
+    eval_dataset_name: str = field(
+        default="",
+        metadata={"help": "HuggingFace dataset for eval (defaults to dataset_name when empty)"},
+    )
+    eval_dataset_subset: str = field(
+        default="",
+        metadata={"help": "Subset/config for eval dataset (defaults to dataset_subset when empty)"},
+    )
     variable_checkpoint_schedule: bool = field(
         default=False,
         metadata={"help": "Use tiered checkpoint schedule (100M/500M/1B) instead of fixed tokens_per_checkpoint"},
