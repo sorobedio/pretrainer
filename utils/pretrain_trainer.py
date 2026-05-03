@@ -145,6 +145,27 @@ class PerplexityCallback(TrainerCallback):
             control.should_evaluate = True
         return control
 
+    def on_evaluate(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        metrics=None,
+        **kwargs,
+    ) -> None:
+        if not metrics or not state.is_world_process_zero:
+            return
+        loss = metrics.get("eval_loss")
+        if loss is None:
+            return
+        ppl = math.exp(min(loss, 20.0))
+        try:
+            import wandb
+            if wandb.run is not None:
+                wandb.log({"eval/perplexity": ppl, "eval/loss": loss}, step=state.global_step)
+        except Exception:
+            pass
+
 
 class VariableCheckpointCallback(TrainerCallback):
     """Saves checkpoints at token-based intervals that tighten early in training:
@@ -226,13 +247,7 @@ class PretrainTrainer(PretrainMixin, Trainer):
         ignore_keys=None,
         metric_key_prefix: str = "eval",
     ) -> Dict[str, float]:
-        metrics = super().evaluate(eval_dataset, ignore_keys, metric_key_prefix)
-        loss_key = f"{metric_key_prefix}_loss"
-        if loss_key in metrics:
-            ppl = math.exp(min(metrics[loss_key], 20.0))
-            metrics[f"{metric_key_prefix}_perplexity"] = ppl
-            self.log({f"{metric_key_prefix}_perplexity": ppl})
-        return metrics
+        return super().evaluate(eval_dataset, ignore_keys, metric_key_prefix)
 
     def get_train_dataloader(self) -> DataLoader:
         if self.train_dataset is None:
