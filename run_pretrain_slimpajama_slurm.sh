@@ -12,7 +12,9 @@
 
 # ── Modules & environment ──
 module load cuda/12.6
+module load gcc arrow
 source ~/scratch/soro_env/bin/activate
+
 
 # ── Directories ──
 mkdir -p logs
