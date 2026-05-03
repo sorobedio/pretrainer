@@ -7,7 +7,7 @@
   # single GPU
   CUDA_VISIBLE_DEVICES=0 bash run_pretrain_slimpajama.sh
 
-
+ CUDA_VISIBLE_DEVICES=1 run_pretrain_slimpajama_continued.sh
 
 
   # Expand everything via INR (original behaviour)
