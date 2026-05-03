@@ -107,6 +107,16 @@ class PerplexityCallback(TrainerCallback):
         self.eval_tokens_interval = eval_tokens_interval
         self._last_eval_tokens = 0
 
+    def on_train_begin(
+        self,
+        args: TrainingArguments,
+        state: TrainerState,
+        control: TrainerControl,
+        **kwargs,
+    ) -> TrainerControl:
+        control.should_save = True
+        return control
+
     def on_save(
         self,
         args: TrainingArguments,
