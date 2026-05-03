@@ -28,7 +28,7 @@ torchrun \
   \
   --input_model_filename "facebook/MobileLLM-R1-360M-base" \
   --init_from_pretrained False \
-  --output_dir "./checkpoints/mobilellm-360m-fineweb-scratch" \
+  --output_dir "/c2/soro/checkpoints/mobilellm-360m-fineweb-scratch" \
   \
   --do_train True \
   --do_eval True \
