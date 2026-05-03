@@ -41,10 +41,15 @@ CUDA_VISIBLE_DEVICES=1 python eval_checkpoints_list.py \
       --max_eval_samples 500 \
       --tokens_per_step 32768
 
-CUDA_VISIBLE_DEVICES=1  python eval_checkpoints_list.py \
+CUDA_VISIBLE_DEVICES=1 python eval_checkpoints_list.py \
       --checkpoint_dir /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch \
       --output_path    /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch/eval_results.json \
       --wandb_project  slimpajama-scratch \
       --wandb_run      mobilellm-360m-wikitext-eval \
-      --mode perplexity \
-      --tokens_per_step 3276
+      --mode benchmarks \
+      --tokens_per_step 32768
+
+  Three modes available:
+  - --mode perplexity — wikitext-2 only, fast (no lm-eval needed)
+  - --mode benchmarks — arc/mmlu/hellaswag/winogrande (requires pip install lm-eval)
+  - --mode all — both

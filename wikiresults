@@ -1,0 +1,23 @@
+
+
+random
+Results saved to /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch/eval_results.json
+
+════════════════════════════════════════════════════════════
+  checkpoint-3051            0.01B tokens  ppl=318.53
+  checkpoint-6102            0.02B tokens  ppl=136.79
+  checkpoint-9153            0.03B tokens  ppl=114.24
+  checkpoint-12204           0.04B tokens  ppl=98.98
+  checkpoint-15255           0.05B tokens  ppl=96.96
+  checkpoint-18306           0.06B tokens  ppl=86.26
+  checkpoint-21357           0.07B tokens  ppl=81.19
+  checkpoint-24408           0.08B tokens  ppl=78.53
+  checkpoint-27459           0.09B tokens  ppl=83.86
+  checkpoint-30510           0.10B tokens  ppl=72.27
+
+
+
+   Run summary:
+wandb:       eval/wikitext_loss 4.28047
+wandb: eval/wikitext_perplexity 72.27421
+wandb:                   tokens 99950760

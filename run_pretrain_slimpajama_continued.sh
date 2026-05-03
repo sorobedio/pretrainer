@@ -40,7 +40,7 @@ torchrun \
   --per_device_eval_batch_size 4 \
   --gradient_accumulation_steps 4 \
   \
-  --learning_rate 1e-4 \
+  --learning_rate 3e-4 \
   --weight_decay 0.1 \
   --adam_beta1 0.9 \
   --adam_beta2 0.95 \
