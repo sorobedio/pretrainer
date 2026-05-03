@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Train MobileLLM-R1-360M from scratch (random init from config) on DKYoon/SlimPajama-6B.
-# Saves at step 0 then every 50M tokens; test perplexity, FLOPs, and token count
-# logged to wandb on every checkpoint.
+# Train MobileLLM-R1-360M from scratch (random init from config) on FineWeb-edu 10BT.
+# Eval perplexity on Salesforce/wikitext test split every 1M tokens.
+# Saves all checkpoints every 100M tokens.
 
 set -euo pipefail
 
 # ---------- wandb config (edit or export before running) ----------
-export WANDB_PROJECT="${WANDB_PROJECT:-slimpajama-scratch}"
-export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-slimpajama-scratch-$(date +%Y%m%d-%H%M)}"
+export WANDB_PROJECT="${WANDB_PROJECT:-fineweb-scratch}"
+export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-fineweb10B-scratch-$(date +%Y%m%d-%H%M)}"
 # ------------------------------------------------------------------
 
 # Set CUDA_VISIBLE_DEVICES to target specific GPUs, e.g.:
-#   CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_pretrain_slimpajama.sh
+#   CUDA_VISIBLE_DEVICES=0,1 bash run_pretrain_slimpajama.sh
 if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
@@ -19,13 +19,16 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
+mkdir -p ./checkpoints/mobilellm-360m-fineweb-scratch
+mkdir -p ./logs
+
 torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/360M-from-140M-inr" \
+  --input_model_filename "facebook/MobileLLM-R1-360M-base" \
   --init_from_pretrained False \
-  --output_dir "/c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-inr" \
+  --output_dir "./checkpoints/mobilellm-360m-fineweb-scratch" \
   \
   --do_train True \
   --do_eval True \
@@ -50,7 +53,6 @@ torchrun \
   --logging_dir "./logs" \
   --report_to "wandb" \
   \
-  --save_total_limit 0 \
   --tokens_per_checkpoint 100000000 \
   --eval_tokens_interval 1000000 \
   \
@@ -59,13 +61,15 @@ torchrun \
   --log_on_each_node False \
   --dataloader_num_workers 0 \
   \
-  --dataset_name "DKYoon/SlimPajama-6B" \
-  --dataset_subset "" \
+  --dataset_name "HuggingFaceFW/fineweb-edu" \
+  --dataset_subset "sample-10BT" \
+  --eval_dataset_name "Salesforce/wikitext" \
+  --eval_dataset_subset "wikitext-2-raw-v1" \
   --eval_split "test" \
-  --total_tokens 6000000000 \
+  --total_tokens 10000000000 \
   --eval_max_samples 500 \
   --streaming True \
-  --buffer_size 10000 \
+  --buffer_size 50000 \
   --num_proc 8 \
   \
   --gradient_checkpointing False \
