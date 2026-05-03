@@ -41,7 +41,7 @@ CUDA_VISIBLE_DEVICES=1 python eval_checkpoints_list.py \
       --max_eval_samples 500 \
       --tokens_per_step 32768
 
-CUDA_VISIBLE_DEVICES=1 python eval_checkpoints_list.py \
+  python eval_checkpoints_list.py \
       --checkpoint_dir /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch \
       --output_path    /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch/eval_results.json \
       --wandb_project  slimpajama-scratch \
