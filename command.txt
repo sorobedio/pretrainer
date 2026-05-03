@@ -31,3 +31,20 @@
   python expand_inr_to_360m.py --mode inr \
       --rand_init self_attn feed_forward norm \
       --push_to_hub ...
+
+CUDA_VISIBLE_DEVICES=1 python eval_checkpoints_list.py \
+      --checkpoint_dir /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch \
+      --output_path    /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch/eval_results.json \
+      --wandb_project  slimpajama-scratch \
+        --wandb_run    mobilellm-360m-eval \
+      --per_device_batch_size 8 \
+      --max_eval_samples 500 \
+      --tokens_per_step 32768
+
+CUDA_VISIBLE_DEVICES=1  python eval_checkpoints_list.py \
+      --checkpoint_dir /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch \
+      --output_path    /c2/soro/checkpoints-tuner/mobilellm-360m-slimpajama-scratch/eval_results.json \
+      --wandb_project  slimpajama-scratch \
+      --wandb_run      mobilellm-360m-wikitext-eval \
+      --mode perplexity \
+      --tokens_per_step 3276
