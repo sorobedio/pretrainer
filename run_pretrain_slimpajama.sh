@@ -51,7 +51,7 @@ torchrun \
   --report_to "wandb" \
   \
   --save_total_limit 0 \
-  --tokens_per_checkpoint 50000000 \
+  --tokens_per_checkpoint 100000000 \
   \
   --eval_strategy "no" \
   --ddp_find_unused_parameters False \
