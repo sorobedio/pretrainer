@@ -15,7 +15,7 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
 else
-  NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
+  NPROC_PER_NODE="${NPROC_PER_NODE:-8}"
 fi
 
 mkdir -p ./checkpoints/360m-inr-slimpajama-continued
