@@ -67,7 +67,7 @@ torchrun \
     --warmup_steps 500 \
     \
     --logging_steps 10 \
-    --logging_dir "/c2/soro/checkpoints/mobilellm-360m-slimpajama-scratch/logs" \
+    --logging_dir "./checkpoints/mobilellm-360m-slimpajama-raw/logs" \
     --report_to "wandb" \
     \
     --save_total_limit 0 \
