@@ -25,9 +25,9 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/360M-from-140M-inr" \
+  --input_model_filename "bedio/360M-from-140M-inr_rescale" \
   --init_from_pretrained True \
-  --output_dir "/c2/soro/contcheckpoints/360m-inr-slimpajama-continued" \
+  --output_dir "/c2/soro/contcheckpoints/360m-inr_scaled-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \
