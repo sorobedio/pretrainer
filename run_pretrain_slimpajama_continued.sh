@@ -22,6 +22,7 @@ mkdir -p ./checkpoints/360m-inr-slimpajama-continued
 mkdir -p ./logs
 
 torchrun \
+  --standalone \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \

@@ -23,8 +23,8 @@ mkdir -p ./checkpoints/mobilellm-360m-hyperclone-fineweb-cont
 mkdir -p ./logs
 
 torchrun \
+  --standalone \
   --nproc_per_node="$NPROC_PER_NODE" \
-  --master_port $(shuf -i 20000-65000 -n 1) \
   pretrain.py \
   \
   --input_model_filename "bedio/MobileLLM-R1-360M-HyperCloned-from-140M" \
