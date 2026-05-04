@@ -45,3 +45,7 @@ wandb: Run summary:
 wandb:       eval/wikitext_loss 4.11616
 wandb: eval/wikitext_perplexity 61.32311
 wandb:                   tokens 999424000
+
+
+cimec/lambada
+
