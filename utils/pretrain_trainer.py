@@ -75,7 +75,7 @@ class FlopsCallback(TrainerCallback):
         logs=None,
         **kwargs,
     ):
-        if logs is None or state.global_step == 0:
+        if logs is None or state.global_step == 0 or not state.is_world_process_zero:
             return
         tokens_per_step = (
             args.per_device_train_batch_size
@@ -85,9 +85,19 @@ class FlopsCallback(TrainerCallback):
         )
         total_tokens = state.global_step * tokens_per_step
         total_flops = 6 * self.num_params * total_tokens
-        logs["tokens_seen"] = total_tokens
-        logs["total_flops"] = float(total_flops)
-        logs["total_flops_e21"] = total_flops / 1e21  # ZettaFLOPs, convenient scale
+        try:
+            import wandb
+            if wandb.run is not None:
+                wandb.log(
+                    {
+                        "tokens_seen": total_tokens,
+                        "total_flops": float(total_flops),
+                        "total_flops_e21": total_flops / 1e21,
+                    },
+                    step=state.global_step,
+                )
+        except Exception:
+            pass
 
 
 def _tokens_per_step(args: TrainingArguments) -> int:

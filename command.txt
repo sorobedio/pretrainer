@@ -53,3 +53,43 @@ CUDA_VISIBLE_DEVICES=1 python eval_checkpoints_list.py \
   - --mode perplexity — wikitext-2 only, fast (no lm-eval needed)
   - --mode benchmarks — arc/mmlu/hellaswag/winogrande (requires pip install lm-eval)
   - --mode all — both
+
+
+
+
+⏺ The --mode options for expand_inr_to_360m.py:
+
+  ┌─────────────┬──────────────────────────────────────────────────────────────────┐
+  │    Mode     │                  What happens to each 2D weight                  │
+  ├─────────────┼──────────────────────────────────────────────────────────────────┤
+  │ inr         │ Pure INR decoded at target shape [1024, 1024]                    │
+  ├─────────────┼──────────────────────────────────────────────────────────────────┤
+  │ inr_rescale │ INR + fan-in variance correction + spectral rank restore         │
+  ├─────────────┼──────────────────────────────────────────────────────────────────┤
+  │ inr_blend   │ (1-β)·tile(140M) + β·INR then rescale + spectral restore         │
+  ├─────────────┼──────────────────────────────────────────────────────────────────┤
+  │ inr_extend  │ Exact 140M weights in [:576,:576], INR fills the extra rows/cols │
+  ├─────────────┼──────────────────────────────────────────────────────────────────┤
+  │ inr_src     │ INR@source shape in [:576,:576], INR@target fills the extra      │
+  └─────────────┴──────────────────────────────────────────────────────────────────┘
+
+  So your command uses --mode inr — the simplest: every weight matrix is decoded purely from the INR at the 360M grid, no corrections, no source weights used.
+
+  To run all modes:
+
+  for MODE in inr inr_rescale inr_blend inr_extend inr_src; do
+
+CUDA_VISIBLE_DEVICES=1 python -u expand_inr_to_360m.py \
+          --source_model facebook/MobileLLM-R1-140M-base \
+          --target_model facebook/MobileLLM-R1-360M-base \
+          --mode inr_blend \
+          --push_to_hub
+  done
+
+
+
+CUDA_VISIBLE_DEVICES=1 python -u expand_inr_to_360m.py \
+          --source_model facebook/MobileLLM-R1-140M-base \
+          --target_model facebook/MobileLLM-R1-360M-base \
+          --mode $MODE \
+          --push_to_hub
