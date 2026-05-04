@@ -15,7 +15,7 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
 else
-  NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
+  NPROC_PER_NODE="${NPROC_PER_NODE:-8}"
 fi
 
 mkdir -p ./checkpoints/360m-inr-slimpajama-continued
@@ -27,7 +27,7 @@ torchrun \
   \
   --input_model_filename "bedio/360M-from-140M-inr_src" \
   --init_from_pretrained True \
-  --output_dir "/c2/soro/contcheckpoints/360m-inr_src-slimpajama-continued" \
+  --output_dir "contcheckpoints/360m-inr_src-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \
