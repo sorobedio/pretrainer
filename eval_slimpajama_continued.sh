@@ -20,4 +20,8 @@ python eval_checkpoints_list.py \
     --mode            "$MODE" \
     --batch_size      8 \
     --seq_len         2048 \
-    --device          "$DEVICE"
+    --device          "$DEVICE" \
+    --ppl_datasets \
+        "Salesforce/wikitext:wikitext-2-raw-v1:test" \
+        "cimec/lambada::test" \
+        "afmck/text8::test"
