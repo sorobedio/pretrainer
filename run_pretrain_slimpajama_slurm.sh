@@ -50,12 +50,12 @@ torchrun \
     \
     --input_model_filename "meta-llama/Llama-3.2-3B" \
     --init_from_pretrained False \
-    --output_dir "$SCRATCH/checkpoints/llama-3b-fineweb-scratch" \
+    --output_dir "$SCRATCH/checkpoints/llama-3b-fineweb4096-scratch" \
     \
     --do_train True \
     --do_eval True \
     \
-    --model_max_length 2048 \
+    --model_max_length 4096 \
     --fp16 False \
     --bf16 True \
     \
