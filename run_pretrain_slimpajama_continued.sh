@@ -25,7 +25,7 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/bedio/360M-from-140M-inr_blend" \
+  --input_model_filename "bedio/360M-from-140M-inr_blend" \
   --init_from_pretrained True \
   --output_dir "./contcheckpoints/360m-inr-blend-slimpajama-continued" \
   \
