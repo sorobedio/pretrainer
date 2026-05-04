@@ -14,8 +14,8 @@
 module purge
 module load cuda/12.6
 module load python/3.11 gcc arrow/24.0.0
-source ~/scratch/soro/soro_env/bin/activate
-cd ~/scratch/soro/Projects/pretrainer
+source ~/scratch/soro_env/bin/activate
+cd $SLURM_SUBMIT_DIR
 python -c "import pyarrow; import datasets; print('env ok')"
 
 # ── Directories ──
