@@ -54,7 +54,7 @@ torchrun \
   --logging_dir "./logs" \
   --report_to "wandb" \
   \
-  --tokens_per_checkpoint 100000000 \
+  --tokens_per_checkpoint 20000000 \
   --eval_tokens_interval 1000000 \
   \
   --eval_strategy "no" \
