@@ -11,9 +11,12 @@
 #SBATCH --account=def-boris
 
 # ── Modules & environment ──
+module purge
 module load cuda/12.6
-module load gcc arrow
-source ~/scratch/soro_env/bin/activate
+module load python/3.11 gcc arrow/24.0.0
+source ~/scratch/soro/soro_env/bin/activate
+cd ~/scratch/soro/Projects/pretrainer
+python -c "import pyarrow; import datasets; print('env ok')"
 
 
 # ── Directories ──
