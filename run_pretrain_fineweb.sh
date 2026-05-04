@@ -33,7 +33,7 @@ torchrun \
   --do_train True \
   --do_eval True \
   \
-  --model_max_length 2048 \
+  --model_max_length 4096 \
   --fp16 False \
   --bf16 True \
   \
