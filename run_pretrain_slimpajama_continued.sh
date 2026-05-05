@@ -26,9 +26,9 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/360M-from-140M-inr_extend" \
+  --input_model_filename "bedio/MobileLLM-R1-360M-HyperCloned-from-140M" \
   --init_from_pretrained True \
-  --output_dir "contcheckpoints/360m-inr_src-slimpajama-continued" \
+  --output_dir "/c2/soro/contcheckpoints/360m-hyperclone-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \
