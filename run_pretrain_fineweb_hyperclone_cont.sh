@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # ---------- wandb config (edit or export before running) ----------
-MODEL_ID="bedio/MobileLLM-R1-360M-HyperCloned-from-140M"
+MODEL_ID="bedio/360M-from-140M-inr_extend"
 DATASET_ID="HuggingFaceFW/fineweb-edu"
 _MODEL_TAG="${MODEL_ID##*/}"    # MobileLLM-R1-360M-HyperCloned-from-140M
 _DATASET_TAG="${DATASET_ID##*/}"  # fineweb-edu

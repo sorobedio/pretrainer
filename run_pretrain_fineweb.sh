@@ -31,7 +31,7 @@ torchrun \
   \
   --input_model_filename "facebook/MobileLLM-R1-360M-base" \
   --init_from_pretrained False \
-  --output_dir "/c2/soro/mobilellm-360m-fineweb-scratch" \
+  --output_dir "./mobilellm-360m-fineweb-scratch" \
   \
   --do_train True \
   --do_eval True \
