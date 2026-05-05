@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Continue pretraining bedio/MobileLLM-R1-360M-HyperCloned-from-140M on FineWeb-edu 10BT.
-# Evaluates on SlimPajama-6B test split. Saves every 100M tokens; test perplexity
+# Continue pretraining bedio/Llama-3.2-3B on FineWeb-edu 10BT.
+# Evaluates on SlimPajama-6B test split. Saves every 50M tokens; test perplexity
 # logged every 1M tokens.
 
 set -euo pipefail
 
 # ---------- wandb config (edit or export before running) ----------
 export WANDB_PROJECT="${WANDB_PROJECT:-fineweb-continued}"
-export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-hyperclone-fineweb10B-cont-$(date +%Y%m%d-%H%M)}"
+export WANDB_RUN_NAME="${WANDB_RUN_NAME:-llama-3b-bedio-fineweb10B-cont-$(date +%Y%m%d-%H%M)}"
 # ------------------------------------------------------------------
 
 # Set CUDA_VISIBLE_DEVICES to target specific GPUs, e.g.:
-#   CUDA_VISIBLE_DEVICES=0,1 bash run_pretrain_fineweb_hyperclone_cont.sh
+#   CUDA_VISIBLE_DEVICES=0,1 bash run_pretrain_llama3b_bedio.sh
 if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
@@ -19,7 +19,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/mobilellm-360m-hyperclone-fineweb-cont
+mkdir -p ./checkpoints/llama-3b-bedio-fineweb-cont
 mkdir -p ./logs
 
 torchrun \
@@ -27,9 +27,9 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/MobileLLM-R1-360M-HyperCloned-from-140M" \
+  --input_model_filename "bedio/Llama-3.2-3B" \
   --init_from_pretrained True \
-  --output_dir "./checkpoints/mobilellm-360m-yperCloned--fineweb-cont" \
+  --output_dir "./checkpoints/llama-3b-bedio-fineweb-cont" \
   \
   --do_train True \
   --do_eval True \
@@ -54,13 +54,13 @@ torchrun \
   --logging_dir "./logs" \
   --report_to "wandb" \
   \
-  --tokens_per_checkpoint 20000000 \
+  --tokens_per_checkpoint 50000000 \
   --eval_tokens_interval 1000000 \
   \
   --eval_strategy "no" \
   --ddp_find_unused_parameters False \
   --log_on_each_node False \
-  --dataloader_num_workers 0 \
+  --dataloader_num_workers 4 \
   \
   --dataset_name "HuggingFaceFW/fineweb-edu" \
   --dataset_subset "sample-10BT" \
