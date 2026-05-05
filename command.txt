@@ -55,7 +55,7 @@ CUDA_VISIBLE_DEVICES=1 python eval_checkpoints_list.py \
   - --mode all — both
 
 
-
+CUDA_VISIBLE_DEVICES=0,1,2,3 bash run_pretrain_llama3b_scratch.sh
 
 ⏺ The --mode options for expand_inr_to_360m.py:
 
