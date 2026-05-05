@@ -29,7 +29,7 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "./merged_llama-3-2-3b" \
+  --input_model_filename "bedio/Llama-3.2-3B" \
   --init_from_pretrained True \
   --output_dir "./checkpoints/llama-3b-bedio-fineweb-cont" \
   \
@@ -44,7 +44,7 @@ torchrun \
   --per_device_eval_batch_size 1 \
   --gradient_accumulation_steps 4 \
   \
-  --learning_rate 3e-4 \
+  --learning_rate 7e-4 \
   --weight_decay 0.1 \
   --adam_beta1 0.9 \
   --adam_beta2 0.95 \
