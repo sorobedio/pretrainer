@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Continue pretraining bedio/MobileLLM-R1-360M-HyperCloned-from-140M on FineWeb-edu 10BT.
-# Evaluates on SlimPajama-6B test split. Saves every 100M tokens; test perplexity
+# Evaluates on SlimPajama-6B test split. Saves every 20M tokens; test perplexity
 # logged every 1M tokens.
 
 set -euo pipefail
@@ -10,6 +10,8 @@ MODEL_ID="bedio/MobileLLM-R1-360M-base-from-MobileLLM-R1-140M-base-inr_merge"
 DATASET_ID="HuggingFaceFW/fineweb-edu"
 _MODEL_TAG="${MODEL_ID##*/}"    # MobileLLM-R1-360M-HyperCloned-from-140M
 _DATASET_TAG="${DATASET_ID##*/}"  # fineweb-edu
+
+OUTPUT_DIR="./checkpoints/${_MODEL_TAG}-${_DATASET_TAG}-cont"
 
 export WANDB_PROJECT="${WANDB_PROJECT:-${_DATASET_TAG}}"
 export WANDB_RUN_NAME="${WANDB_RUN_NAME:-${_MODEL_TAG}-$(date +%Y%m%d-%H%M)}"
@@ -26,7 +28,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/mobilellm-360m-hyperclone-fineweb-cont
+mkdir -p "$OUTPUT_DIR"
 mkdir -p ./logs
 
 torchrun \
@@ -36,7 +38,7 @@ torchrun \
   \
   --input_model_filename "$MODEL_ID" \
   --init_from_pretrained True \
-  --output_dir "./checkpoints/mobilellm-360m-yperCloned--fineweb-cont" \
+  --output_dir "$OUTPUT_DIR" \
   \
   --do_train True \
   --do_eval True \
