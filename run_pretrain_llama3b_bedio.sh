@@ -18,10 +18,10 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
 else
-  NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
+  NPROC_PER_NODE="${NPROC_PER_NODE:-4}"
 fi
 
-mkdir -p ./checkpoints/llama-3b-bedio-fineweb-cont
+mkdir -p ./checkpoints/llama-3b-bedio-fineweb
 mkdir -p ./logs
 
 torchrun \
@@ -40,7 +40,7 @@ torchrun \
   --fp16 False \
   --bf16 True \
   \
-  --per_device_train_batch_size 4 \
+  --per_device_train_batch_size 8 \
   --per_device_eval_batch_size 1 \
   --gradient_accumulation_steps 4 \
   \
