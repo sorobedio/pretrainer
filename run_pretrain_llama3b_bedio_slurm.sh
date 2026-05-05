@@ -47,7 +47,7 @@ torchrun \
     --rdzv_endpoint=${MASTER_ADDR}:${MASTER_PORT} \
     pretrain.py \
     \
-    --input_model_filename "bedio/Llama-3.2-3B" \
+    --input_model_filename "./merged_llama-3-2-3b" \
     --init_from_pretrained True \
     --output_dir "$SCRATCH/checkpoints/llama-3b-bedio-fineweb-cont" \
     \

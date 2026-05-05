@@ -27,7 +27,7 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/Llama-3.2-3B" \
+  --input_model_filename "./merged_llama-3-2-3b" \
   --init_from_pretrained True \
   --output_dir "./checkpoints/llama-3b-bedio-fineweb-cont" \
   \
