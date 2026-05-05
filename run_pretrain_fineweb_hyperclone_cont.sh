@@ -6,8 +6,13 @@
 set -euo pipefail
 
 # ---------- wandb config (edit or export before running) ----------
-export WANDB_PROJECT="${WANDB_PROJECT:-fineweb-continued}"
-export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-hyperclone-fineweb10B-cont-$(date +%Y%m%d-%H%M)}"
+MODEL_ID="bedio/MobileLLM-R1-360M-HyperCloned-from-140M"
+DATASET_ID="HuggingFaceFW/fineweb-edu"
+_MODEL_TAG="${MODEL_ID##*/}"    # MobileLLM-R1-360M-HyperCloned-from-140M
+_DATASET_TAG="${DATASET_ID##*/}"  # fineweb-edu
+
+export WANDB_PROJECT="${WANDB_PROJECT:-${_DATASET_TAG}}"
+export WANDB_RUN_NAME="${WANDB_RUN_NAME:-${_MODEL_TAG}-$(date +%Y%m%d-%H%M)}"
 export WANDB_HTTP_TIMEOUT=300
 export WANDB_INIT_TIMEOUT=120
 # ------------------------------------------------------------------
@@ -29,7 +34,7 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/MobileLLM-R1-360M-HyperCloned-from-140M" \
+  --input_model_filename "$MODEL_ID" \
   --init_from_pretrained True \
   --output_dir "./checkpoints/mobilellm-360m-yperCloned--fineweb-cont" \
   \
@@ -64,7 +69,7 @@ torchrun \
   --log_on_each_node False \
   --dataloader_num_workers 0 \
   \
-  --dataset_name "HuggingFaceFW/fineweb-edu" \
+  --dataset_name "$DATASET_ID" \
   --dataset_subset "sample-10BT" \
   --eval_dataset_name "DKYoon/SlimPajama-6B" \
   --eval_dataset_subset "" \
