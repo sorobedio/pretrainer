@@ -53,7 +53,7 @@ torchrun \
   \
   --save_strategy "steps" \
   --save_total_limit 5 \
-  --tokens_per_checkpoint 1000000 \
+  --tokens_per_checkpoint 20000000 \
   \
   --eval_strategy "no" \
   --ddp_find_unused_parameters False \
