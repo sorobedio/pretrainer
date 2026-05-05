@@ -8,6 +8,8 @@ set -euo pipefail
 # ---------- wandb config (edit or export before running) ----------
 export WANDB_PROJECT="${WANDB_PROJECT:-fineweb-continued}"
 export WANDB_RUN_NAME="${WANDB_RUN_NAME:-llama-3b-bedio-fineweb10B-cont-$(date +%Y%m%d-%H%M)}"
+export WANDB_HTTP_TIMEOUT=300
+export WANDB_INIT_TIMEOUT=120
 # ------------------------------------------------------------------
 
 # Set CUDA_VISIBLE_DEVICES to target specific GPUs, e.g.:
@@ -39,7 +41,7 @@ torchrun \
   --bf16 True \
   \
   --per_device_train_batch_size 4 \
-  --per_device_eval_batch_size 4 \
+  --per_device_eval_batch_size 1 \
   --gradient_accumulation_steps 4 \
   \
   --learning_rate 3e-4 \

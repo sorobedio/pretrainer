@@ -8,6 +8,8 @@ set -euo pipefail
 # ---------- wandb config (edit or export before running) ----------
 export WANDB_PROJECT="${WANDB_PROJECT:-fineweb-continued}"
 export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-hyperclone-fineweb10B-cont-$(date +%Y%m%d-%H%M)}"
+export WANDB_HTTP_TIMEOUT=300
+export WANDB_INIT_TIMEOUT=120
 # ------------------------------------------------------------------
 
 # Set CUDA_VISIBLE_DEVICES to target specific GPUs, e.g.:

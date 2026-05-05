@@ -62,6 +62,11 @@ class FinemathDataset(IterableDataset):
         buffer = []
         n_yielded = 0
 
+        # Temporarily raise model_max_length so the tokenizer doesn't warn
+        # about documents longer than seq_len — we do our own chunking below.
+        orig_max_len = self.tokenizer.model_max_length
+        self.tokenizer.model_max_length = int(1e30)
+
         for example in ds:
             text = example.get("text", "")
             if not text:
@@ -78,4 +83,7 @@ class FinemathDataset(IterableDataset):
                 yield {"input_ids": t, "labels": t.clone()}
                 n_yielded += 1
                 if self.max_samples > 0 and n_yielded >= self.max_samples:
+                    self.tokenizer.model_max_length = orig_max_len
                     return
+
+        self.tokenizer.model_max_length = orig_max_len
