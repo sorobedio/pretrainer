@@ -27,9 +27,9 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/360M-from-140M-inr_extend" \
+  --input_model_filename "bedio/360M-from-140M-inr_blend" \
   --init_from_pretrained True \
-  --output_dir "./checkpoints/mobilellm-360m-my–best–inr-blender-fineweb-cont" \
+  --output_dir "./checkpoints/mobilellm-360m-my–best–inr-blender-real-fineweb-cont" \
   \
   --do_train True \
   --do_eval True \
