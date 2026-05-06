@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Continue pretraining bedio/gemma-3-270m-cloned-init (pretrained init) on DKYoon/SlimPajama-6B.
+# Continue pretraining bedio/gemma-3-270m-cloned-init (pretrained init) on HuggingFaceFW/fineweb-edu.
 # Eval perplexity on Salesforce/wikitext test split every 1M tokens.
-# Saves checkpoints every 50M tokens.
+# Saves checkpoints every 100M tokens.
 
 set -euo pipefail
 
@@ -56,7 +56,7 @@ torchrun \
   --logging_dir "./logs" \
   --report_to "wandb" \
   \
-  --tokens_per_checkpoint 50000000 \
+  --tokens_per_checkpoint 100000000 \
   --eval_tokens_interval 1000000 \
   \
   --eval_strategy "no" \
