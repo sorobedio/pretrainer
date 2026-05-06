@@ -173,7 +173,7 @@ def eval_benchmarks(ckpt_path: str, batch_size: int,
             f"dtype=bfloat16,"
             f"max_model_len={max_model_len},"
             f"gpu_memory_utilization={gpu_memory_utilization},"
-            f"tensor_parallel_size=1"
+            f"tensor_parallel_size={torch.cuda.device_count() if torch.cuda.is_available() else 1}"
         )
         batch_size_arg = "auto"
         device_arg = None
