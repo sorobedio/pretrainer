@@ -19,7 +19,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/mobilellm-360m-fineweb-scratch
+mkdir -p ./checkpoints/gemma-fineweb-scratch
 mkdir -p ./logs
 
 torchrun \
@@ -27,14 +27,14 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "facebook/MobileLLM-R1-360M-base" \
+  --input_model_filename "bedio/gemma-3-270m-cloned-init" \
   --init_from_pretrained False \
-  --output_dir "/c2/soro/checkpoints/mobilellm-360m-fineweb-scratch" \
+  --output_dir "./checkpoints/gema-fineweb-scratch" \
   \
   --do_train True \
   --do_eval True \
   \
-  --model_max_length 2048 \
+  --model_max_length 4096 \
   --fp16 False \
   --bf16 True \
   \
@@ -54,7 +54,7 @@ torchrun \
   --logging_dir "./logs" \
   --report_to "wandb" \
   \
-  --tokens_per_checkpoint 100000000 \
+  --tokens_per_checkpoint 50000000 \
   --eval_tokens_interval 1000000 \
   \
   --eval_strategy "no" \

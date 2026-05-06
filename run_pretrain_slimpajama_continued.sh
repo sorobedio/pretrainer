@@ -17,10 +17,10 @@ if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then
   export CUDA_VISIBLE_DEVICES
   NPROC_PER_NODE=$(echo "$CUDA_VISIBLE_DEVICES" | tr ',' '\n' | wc -l | tr -d ' ')
 else
-  NPROC_PER_NODE="${NPROC_PER_NODE:-8}"
+  NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/360m-inr-slimpajama-continued
+mkdir -p ./checkpoints/gemma-inr-slimpajama-continued
 mkdir -p ./logs
 
 torchrun \
@@ -28,9 +28,9 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/MobileLLM-R1-360M-HyperCloned-from-140M" \
+  --input_model_filename "bedio/gemma-3-270m-cloned-init" \
   --init_from_pretrained True \
-  --output_dir "/c2/soro/contcheckpoints/360m-hyperclone-slimpajama-continued" \
+  --output_dir "./contcheckpoints/gemma-slimpajama-continued" \
   \
   --do_train True \
   --do_eval True \
