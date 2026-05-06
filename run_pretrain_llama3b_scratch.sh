@@ -32,7 +32,7 @@ torchrun \
   \
   --input_model_filename "meta-llama/Llama-3.2-3B" \
   --init_from_pretrained False \
-  --output_dir "./checkpoints/llama-3b-scratch-fineweb" \
+  --output_dir "./checkpoints/llama-3b-scratch-fineweb-v2" \
   \
   --do_train True \
   --do_eval True \
@@ -67,8 +67,8 @@ torchrun \
   \
   --dataset_name "HuggingFaceFW/fineweb-edu" \
   --dataset_subset "sample-10BT" \
-  --eval_dataset_name "DKYoon/SlimPajama-6B" \
-  --eval_dataset_subset "" \
+  --eval_dataset_name "Salesforce/wikitext" \
+  --eval_dataset_subset "wikitext-2-raw-v1" \
   --eval_split "test" \
   --total_tokens 10000000000 \
   --eval_max_samples 500 \

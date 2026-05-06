@@ -31,7 +31,7 @@ torchrun \
   \
   --input_model_filename "./clonellama-3-3b-v0" \
   --init_from_pretrained True \
-  --output_dir "./checkpoints/llama-3b-bedio-fineweb-cont" \
+  --output_dir "./checkpoints/llama-3b-bedio-fineweb-cont-v2" \
   \
   --do_train True \
   --do_eval True \
@@ -44,7 +44,7 @@ torchrun \
   --per_device_eval_batch_size 1 \
   --gradient_accumulation_steps 4 \
   \
-  --learning_rate 7e-4 \
+  --learning_rate 3e-4 \
   --weight_decay 0.1 \
   --adam_beta1 0.9 \
   --adam_beta2 0.95 \
@@ -66,8 +66,8 @@ torchrun \
   \
   --dataset_name "HuggingFaceFW/fineweb-edu" \
   --dataset_subset "sample-10BT" \
-  --eval_dataset_name "DKYoon/SlimPajama-6B" \
-  --eval_dataset_subset "" \
+  --eval_dataset_name "Salesforce/wikitext" \
+  --eval_dataset_subset "wikitext-2-raw-v1" \
   --eval_split "test" \
   --total_tokens 10000000000 \
   --eval_max_samples 500 \
