@@ -21,7 +21,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/gemma-slimpajama-pretrained
+mkdir -p ./checkpoints/gemma-pretrained
 mkdir -p ./logs
 
 torchrun \
@@ -31,7 +31,7 @@ torchrun \
   \
   --input_model_filename "bedio/gemma-3-270m-cloned-init" \
   --init_from_pretrained True \
-  --output_dir "./checkpoints/gemma-slimpajama-pretrained" \
+  --output_dir "./checkpoints/gemma-pretrained" \
   \
   --do_train True \
   --do_eval True \
