@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
-# Train MobileLLM-R1-360M from scratch (random init from config) on FineWeb-edu 10BT.
+# Continue pretraining bedio/gemma-3-270m-cloned-init (pretrained init) on DKYoon/SlimPajama-6B.
 # Eval perplexity on Salesforce/wikitext test split every 1M tokens.
-# Saves all checkpoints every 100M tokens.
+# Saves checkpoints every 50M tokens.
 
 set -euo pipefail
 
 # ---------- wandb config (edit or export before running) ----------
-export WANDB_PROJECT="${WANDB_PROJECT:-fineweb-scratch}"
-export WANDB_RUN_NAME="${WANDB_RUN_NAME:-mobilellm-360m-fineweb10B-scratch-$(date +%Y%m%d-%H%M)}"
+export WANDB_PROJECT="${WANDB_PROJECT:-slimpajama-continued}"
+export WANDB_RUN_NAME="${WANDB_RUN_NAME:-gemma-270m-slimpajama-pretrained-$(date +%Y%m%d-%H%M)}"
+export WANDB_HTTP_TIMEOUT=300
+export WANDB_INIT_TIMEOUT=120
 # ------------------------------------------------------------------
 
 # Set CUDA_VISIBLE_DEVICES to target specific GPUs, e.g.:
@@ -19,7 +21,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/gemma-fineweb-scratch
+mkdir -p ./checkpoints/gemma-slimpajama-pretrained
 mkdir -p ./logs
 
 torchrun \
@@ -28,8 +30,8 @@ torchrun \
   pretrain.py \
   \
   --input_model_filename "bedio/gemma-3-270m-cloned-init" \
-  --init_from_pretrained False \
-  --output_dir "./checkpoints/gema-fineweb-scratch" \
+  --init_from_pretrained True \
+  --output_dir "./checkpoints/gemma-slimpajama-pretrained" \
   \
   --do_train True \
   --do_eval True \
