@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Continue pretraining bedio/gemma-3-270m-cloned-init (pretrained init) on HuggingFaceFW/fineweb-edu.
+# Train bedio/gemma-3-270m-cloned-init from scratch (random init from config) on HuggingFaceFW/fineweb-edu.
 # Eval perplexity on Salesforce/wikitext test split every 1M tokens.
 # Saves checkpoints every 100M tokens.
 
@@ -7,7 +7,7 @@ set -euo pipefail
 
 # ---------- wandb config (edit or export before running) ----------
 export WANDB_PROJECT="${WANDB_PROJECT:-slimpajama-continued}"
-export WANDB_RUN_NAME="${WANDB_RUN_NAME:-gemma-270m-slimpajama-pretrained-$(date +%Y%m%d-%H%M)}"
+export WANDB_RUN_NAME="${WANDB_RUN_NAME:-gemma-270m-fineweb-scratch-$(date +%Y%m%d-%H%M)}"
 export WANDB_HTTP_TIMEOUT=300
 export WANDB_INIT_TIMEOUT=120
 # ------------------------------------------------------------------
@@ -21,7 +21,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/gemma-pretrained
+mkdir -p ./checkpoints/gemma-scratch
 mkdir -p ./logs
 
 torchrun \
@@ -30,8 +30,8 @@ torchrun \
   pretrain.py \
   \
   --input_model_filename "bedio/gemma-3-270m-cloned-init" \
-  --init_from_pretrained True \
-  --output_dir "./checkpoints/gemma-pretrained" \
+  --init_from_pretrained False \
+  --output_dir "./checkpoints/gemma-scratch" \
   \
   --do_train True \
   --do_eval True \
