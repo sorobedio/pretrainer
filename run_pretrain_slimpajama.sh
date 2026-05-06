@@ -29,7 +29,7 @@ torchrun \
   --nproc_per_node="$NPROC_PER_NODE" \
   pretrain.py \
   \
-  --input_model_filename "bedio/gemma-3-270m-cloned-init" \
+  --input_model_filename "bedio/gemma-3-270m-gate-inr" \
   --init_from_pretrained False \
   --output_dir "./checkpoints/gemma-scratch" \
   \

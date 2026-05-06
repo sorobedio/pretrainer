@@ -93,3 +93,10 @@ CUDA_VISIBLE_DEVICES=1 python -u expand_inr_to_360m.py \
           --target_model facebook/MobileLLM-R1-360M-base \
           --mode $MODE \
           --push_to_hub
+
+CUDA_VISIBLE_DEVICES=0 python decode_gemma_gate.py \
+      --base_model  bedio/gemma-3-270m-cloned-init \
+      --ckpt        ckpt_crossarch/mlp_gate_50M.pt \
+      --output_dir  gemma_gate_decoded \
+      --hub_repo    bedio/gemma-3-270m-gate-inr \
+      --push_to_hub
