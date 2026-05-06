@@ -50,6 +50,7 @@ TASKS = {
     "arc_challenge": 25,
     "arc_easy":      25,
     "hellaswag":     10,
+    "piqa":          0,
 }
 
 SCORE_KEY = {
@@ -58,6 +59,7 @@ SCORE_KEY = {
     "arc_challenge": "acc_norm,none",
     "arc_easy":      "acc_norm,none",
     "hellaswag":     "acc_norm,none",
+    "piqa":          "acc_norm,none",
 }
 
 DEFAULT_PPL_DATASETS = [
@@ -159,20 +161,42 @@ def eval_perplexity_all(ckpt_path: str, tokenizer, seq_len: int,
 # ── Benchmarks ────────────────────────────────────────────────────────────────
 
 def eval_benchmarks(ckpt_path: str, batch_size: int,
-                    device: str, limit: int | None) -> dict:
+                    device: str, limit: int | None,
+                    use_vllm: bool = False,
+                    max_model_len: int = 4096,
+                    gpu_memory_utilization: float = 0.85) -> dict:
     import lm_eval
+    if use_vllm:
+        model_type = "vllm"
+        model_args = (
+            f"pretrained={ckpt_path},"
+            f"dtype=bfloat16,"
+            f"max_model_len={max_model_len},"
+            f"gpu_memory_utilization={gpu_memory_utilization},"
+            f"tensor_parallel_size=1"
+        )
+        batch_size_arg = "auto"
+        device_arg = None
+    else:
+        model_type = "hf"
+        model_args = f"pretrained={ckpt_path},dtype=bfloat16"
+        batch_size_arg = batch_size
+        device_arg = device
+
     all_results = {}
     for task, num_fewshot in TASKS.items():
-        results = lm_eval.simple_evaluate(
-            model="hf",
-            model_args=f"pretrained={ckpt_path},dtype=bfloat16",
+        kwargs = dict(
+            model=model_type,
+            model_args=model_args,
             tasks=[task],
             num_fewshot=num_fewshot,
-            batch_size=batch_size,
-            device=device,
+            batch_size=batch_size_arg,
             limit=limit,
             log_samples=False,
         )
+        if device_arg is not None:
+            kwargs["device"] = device_arg
+        results = lm_eval.simple_evaluate(**kwargs)
         all_results[task] = results["results"][task]
     return all_results
 
@@ -211,6 +235,14 @@ def main():
                         help="Tokens per optimizer step (bs × grad_acc × seq_len × gpus)")
     parser.add_argument("--limit", type=int, default=None,
                         help="Limit samples per benchmark task (debug)")
+    parser.add_argument("--max_checkpoints", type=int, default=None,
+                        help="Only evaluate the first N checkpoints (sorted by step)")
+    parser.add_argument("--use_vllm", action="store_true",
+                        help="Use vLLM backend for benchmark evaluation (faster)")
+    parser.add_argument("--max_model_len", type=int, default=4096,
+                        help="vLLM max_model_len (context length)")
+    parser.add_argument("--gpu_memory_utilization", type=float, default=0.85,
+                        help="vLLM gpu_memory_utilization fraction")
     args = parser.parse_args()
 
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
@@ -221,6 +253,8 @@ def main():
     checkpoints = discover_checkpoints(args.checkpoint_dir)
     if not checkpoints:
         raise RuntimeError(f"No checkpoint-* folders found in {args.checkpoint_dir}")
+    if args.max_checkpoints is not None:
+        checkpoints = checkpoints[: args.max_checkpoints]
     print(f"Found {len(checkpoints)} checkpoints: {[s for s, _ in checkpoints]}")
 
     tokenizer = AutoTokenizer.from_pretrained(checkpoints[0][1])
@@ -266,6 +300,9 @@ def main():
                 batch_size=args.batch_size,
                 device=str(device),
                 limit=args.limit,
+                use_vllm=args.use_vllm,
+                max_model_len=args.max_model_len,
+                gpu_memory_utilization=args.gpu_memory_utilization,
             )
             scores = {t: task_results[t].get(SCORE_KEY[t], None) for t in TASKS}
             result["benchmark_scores"] = scores
