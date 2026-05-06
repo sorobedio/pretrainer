@@ -275,3 +275,4 @@ class PretrainTrainer(PretrainMixin, Trainer):
 
         # Legacy path: dataset yields pre-batched tensors (e.g. MultiJSONLIterator)
         return self.train_dataset
+

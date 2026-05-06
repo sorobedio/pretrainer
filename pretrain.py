@@ -75,15 +75,20 @@ def train() -> None:
 
     log.info(f"Global rank {global_rank} / world size {world_size}")
 
+    # Resolve relative paths so huggingface_hub doesn't reject them as invalid repo IDs
+    model_id = model_args.input_model_filename
+    if os.path.exists(model_id):
+        model_id = os.path.abspath(model_id)
+
     if model_args.init_from_pretrained:
-        log.info(f"Loading pretrained weights from {model_args.input_model_filename} …")
+        log.info(f"Loading pretrained weights from {model_id} …")
         model = transformers.AutoModelForCausalLM.from_pretrained(
-            model_args.input_model_filename,
+            model_id,
             torch_dtype=torch.bfloat16 if training_args.bf16 else (torch.float16 if training_args.fp16 else torch.float32),
         )
     else:
         log.info("Initialising model from scratch (random weights) …")
-        config = AutoConfig.from_pretrained(model_args.input_model_filename)
+        config = AutoConfig.from_pretrained(model_id)
         model = transformers.AutoModelForCausalLM.from_config(config=config)
 
     num_params = sum(p.numel() for p in model.parameters())
@@ -91,7 +96,7 @@ def train() -> None:
 
     log.info("Loading tokenizer …")
     tokenizer = transformers.AutoTokenizer.from_pretrained(
-        pretrained_model_name_or_path=model_args.input_model_filename,
+        pretrained_model_name_or_path=model_id,
         cache_dir=training_args.cache_dir,
         model_max_length=training_args.model_max_length,
         padding_side="right",
@@ -150,7 +155,8 @@ def train() -> None:
     eval_dataset_name = data_args.eval_dataset_name or data_args.dataset_name
     eval_dataset_subset = data_args.eval_dataset_subset if data_args.eval_dataset_name else data_args.dataset_subset
 
-    test_data = FinemathDataset(
+    log.info("Pre-collecting eval dataset …")
+    _eval_stream = FinemathDataset(
         tokenizer=tokenizer,
         seq_len=training_args.model_max_length,
         world_rank=0,
@@ -164,6 +170,10 @@ def train() -> None:
         seed=training_args.seed,
         max_samples=data_args.eval_max_samples,
     )
+    # Materialise into a list so Accelerate's distributed dataloader can
+    # shard it across ranks without streaming synchronisation issues.
+    test_data = list(_eval_stream)
+    log.info(f"Eval dataset: {len(test_data)} sequences of {training_args.model_max_length} tokens")
 
     # ------------------------------------------------------------------ #
     # Trainer                                                              #
