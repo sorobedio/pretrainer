@@ -21,7 +21,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/gemma-slimpajama-scratch-inr
+mkdir -p ./checkpoints/gemma-slimpajama-inr
 mkdir -p ./logs
 
 torchrun \
@@ -31,7 +31,7 @@ torchrun \
   \
   --input_model_filename "bedio/gemma-3-270m-gate-inr" \
   --init_from_pretrained False \
-  --output_dir "./checkpoints/gemma-slimpajama-scratch-inr" \
+  --output_dir "./checkpoints/gemma-slimpajama-inr" \
   \
   --do_train True \
   --do_eval True \
@@ -44,7 +44,7 @@ torchrun \
   --per_device_eval_batch_size 4 \
   --gradient_accumulation_steps 4 \
   \
-  --learning_rate 3e-4 \
+  --learning_rate 5e-4 \
   --weight_decay 0.1 \
   --adam_beta1 0.9 \
   --adam_beta2 0.95 \
