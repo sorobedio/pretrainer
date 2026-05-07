@@ -21,7 +21,7 @@ else
   NPROC_PER_NODE="${NPROC_PER_NODE:-1}"
 fi
 
-mkdir -p ./checkpoints/gemma-slimpajama-scratch
+mkdir -p ./checkpoints/gemma-slimpajama-scratch-inr
 mkdir -p ./logs
 
 torchrun \
@@ -31,7 +31,7 @@ torchrun \
   \
   --input_model_filename "bedio/gemma-3-270m-gate-inr" \
   --init_from_pretrained False \
-  --output_dir "./checkpoints/gemma-slimpajama-scratch" \
+  --output_dir "./checkpoints/gemma-slimpajama-scratch-inr" \
   \
   --do_train True \
   --do_eval True \
