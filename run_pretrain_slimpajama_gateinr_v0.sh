@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Train bedio/gemma-3-270m-gate-inr from scratch (random init from config) on DKYoon/SlimPajama-6B.
+# Continue pretraining bedio/gemma-3-270m-gate-inr (pretrained init) on DKYoon/SlimPajama-6B.
 # Evaluates on SlimPajama-6B test split. Saves every 100M tokens; test perplexity
 # logged every 1M tokens.
 
@@ -11,10 +11,10 @@ DATASET_ID="DKYoon/SlimPajama-6B"
 _MODEL_TAG="${MODEL_ID##*/}"      # gemma-3-270m-gate-inr
 _DATASET_TAG="${DATASET_ID##*/}"  # SlimPajama-6B
 
-OUTPUT_DIR="./checkpoints/${_MODEL_TAG}-${_DATASET_TAG}-scratch-v0"
+OUTPUT_DIR="./checkpoints/${_MODEL_TAG}-${_DATASET_TAG}-cont-v0"
 
 export WANDB_PROJECT="${WANDB_PROJECT:-${_DATASET_TAG}}"
-export WANDB_RUN_NAME="${WANDB_RUN_NAME:-${_MODEL_TAG}-scratch-$(date +%Y%m%d-%H%M)}"
+export WANDB_RUN_NAME="${WANDB_RUN_NAME:-${_MODEL_TAG}-cont-$(date +%Y%m%d-%H%M)}"
 export WANDB_HTTP_TIMEOUT=300
 export WANDB_INIT_TIMEOUT=120
 # ------------------------------------------------------------------
@@ -37,7 +37,7 @@ torchrun \
   pretrain.py \
   \
   --input_model_filename "$MODEL_ID" \
-  --init_from_pretrained False \
+  --init_from_pretrained True \
   --output_dir "$OUTPUT_DIR" \
   \
   --do_train True \
